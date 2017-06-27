@@ -1,0 +1,28 @@
+{
+  "globals": {
+    "err": true,
+    "req": true,
+    "res": true,
+    "next": true
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-console": "off",
+    "indent": [ "error", 2 ],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }]
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+    "modules": true,
+    "impliedStrict": true,
+    "experimentalObjectRestSpread": true
+  }
+},
+  "extends": "eslint:recommended"
+}
