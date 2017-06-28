@@ -4,7 +4,7 @@ require('dotenv').config({ path: `${__dirname}/../.test.env` });
 const superagent = require('superagent');
 const expect = require('expect');
 const server = require('../lib/server.js');
-
+const Product = require('../model/product.js');
 const API_URL = `http://localhost:${process.env.PORT}`;
 let tempProduct;
 
@@ -13,23 +13,22 @@ describe('testing product routes', () => {
   after(server.stop);
 
   describe('test POST /api/products', () => {
+    after(() => Product.remove({}));
+
+    let data = {
+      productName: 'sterio',
+      productId: 'sterio1',
+      dateIn: Date.now(),
+      isInStock: true
+    };
     it('should respond with a product', () => {
-      return superagent
-        .post(`${API_URL}/api/products`)
-        .send({
-          productName: 'sterio',
-          productId: 'sterio1',
-          dateIn: Date.now(),
-          isInStock: true
-        })
-        .then(res => {
-          expect(res.status).toEqual(200);
-          expect(res.body._id).toExist();
-          expect(res.body.productName).toEqual('sterio');
-          expect(res.body.productId).toEqual('sterio1');
-          expect(res.body.created).toExist();
-          tempProduct = res.body;
-        });
+      return superagent.post(`${API_URL}/api/products`).send(data).then(res => {
+        expect(res.status).toEqual(200);
+        expect(res.body._id).toExist();
+        expect(res.body.productName).toEqual('sterio');
+        expect(res.body.productId).toEqual('sterio1');
+        tempProduct = res.body;
+      });
     });
 
     it('should respond with 400 invalid request body', () => {
@@ -52,15 +51,26 @@ describe('testing product routes', () => {
   });
 
   describe('testing GET /api/product', () => {
+    let tempProduct;
+    beforeEach(() => {
+      return new Product({
+        productName: 'car',
+        productId: 'car1'
+      })
+        .save()
+        .then(product => {
+          tempProduct = product;
+        });
+    });
+    after(() => Product.remove({}));
     it('should respond with a product', () => {
       return superagent
         .get(`${API_URL}/api/products/${tempProduct._id}`)
         .then(res => {
           expect(res.status).toEqual(200);
           expect(res.body._id).toExist();
-          expect(res.body.productName).toEqual('sterio');
-          expect(res.body.productID).toEqual('sterio1');
-          expect(res.body.created).toExist();
+          expect(res.body.productName).toEqual('car');
+          expect(res.body.productId).toEqual('car1');
         });
     });
     it('should respond with a 404 not found', () => {
@@ -71,6 +81,18 @@ describe('testing product routes', () => {
   });
 
   describe('testing PUT /api/product', () => {
+    let tempProduct;
+    beforeEach(() => {
+      return new Product({
+        productName: 'window',
+        productId: 'window1'
+      })
+        .save()
+        .then(product => {
+          tempProduct = product;
+        });
+    });
+    after(() => Product.remove({}));
     it('should respond with a 200 and updated product', () => {
       return superagent
         .put(`${API_URL}/api/products/${tempProduct._id}`)
@@ -89,6 +111,15 @@ describe('testing product routes', () => {
       return superagent.put(`${API_URL}/api/products/`).send({}).catch(err => {
         expect(err.status).toEqual(404);
       });
+    });
+
+    it('should respond with a 400 invalid request body', () => {
+      return superagent
+        .put(`${API_URL}/api/products/${tempProduct._id}`)
+        .send(null)
+        .catch(err => {
+          expect(err.status).toEqual(400);
+        });
     });
   });
 

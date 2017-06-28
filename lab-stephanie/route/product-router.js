@@ -7,7 +7,7 @@ const Product = require('../model/product.js');
 let productRouter = (module.exports = new Router());
 
 productRouter.post('/api/products', jsonParser, (req, res, next) => {
-  req.body.created = new Date();
+  console.log('req.body', req.body);
   new Product(req.body).save().then(product => res.json(product)).catch(next);
 });
 

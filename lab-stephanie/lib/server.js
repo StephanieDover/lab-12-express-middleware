@@ -15,7 +15,7 @@ app.use(require('../route/product-router.js'));
 app.use(require('../lib/error-handler.js'));
 
 app.use(cors());
-app.use(morgan());
+app.use(morgan('dev'));
 
 const serverControl = (module.exports = {});
 
